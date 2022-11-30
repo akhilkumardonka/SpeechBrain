@@ -1,0 +1,5 @@
+3sec Segment, 0.3 Hop
+out_of_domain_accuracy : 94.6%
+
+te-hi-eng.wav  DER=0.412
+hi-eng.wav     DER=0.318  

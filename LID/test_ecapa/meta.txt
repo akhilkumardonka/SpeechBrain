@@ -1,0 +1,5 @@
+3 second segment, 0.3 hop
+out_of_domain_acc : 90.1%
+
+te-hi-eng.wav : DER = 0.375
+hi-eng.wav :    DER = 0.401

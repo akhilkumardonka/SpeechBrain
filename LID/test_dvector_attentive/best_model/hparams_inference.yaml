@@ -1,0 +1,59 @@
+pretrained_path: ./best_model
+
+# Training parameters
+sample_rate: 16000
+
+# Feature parameters
+n_mels: 40
+left_frames: 0
+right_frames: 0
+deltas: False
+sentence_len: 3 # seconds
+
+# Number of languages
+n_classes: 3 
+emb_dim: 512 
+
+# Feature extraction
+compute_features: !new:speechbrain.lobes.features.Fbank
+    n_mels: !ref <n_mels>
+    left_frames: !ref <left_frames>
+    right_frames: !ref <right_frames>
+    deltas: !ref <deltas>
+
+# Mean and std normalization of the input features
+mean_var_norm: !new:speechbrain.processing.features.InputNormalization
+    norm_type: sentence
+    std_norm: False
+
+# To design a custom model, either just edit the simple CustomModel
+# class that's listed here, or replace this `!new` call with a line
+# pointing to a different file you've defined.
+embedding_model: &id004 !new:custom_model.AttentivePooledLSTMDvector
+  dim_input: 40
+  dim_emb: 512
+
+classifier: !new:speechbrain.lobes.models.Xvector.Classifier
+    input_shape: [null, null, 512]
+    activation: !name:torch.nn.LeakyReLU
+    lin_blocks: 1
+    lin_neurons: 512
+    out_neurons: !ref <n_classes>
+    
+label_encoder: !new:speechbrain.dataio.encoder.CategoricalEncoder
+
+modules:
+    compute_features: !ref <compute_features>
+    embedding_model: !ref <embedding_model>
+    classifier: !ref <classifier>
+    mean_var_norm: !ref <mean_var_norm>
+        
+pretrainer: !new:speechbrain.utils.parameter_transfer.Pretrainer
+    loadables:
+        embedding_model: !ref <embedding_model>
+        classifier: !ref <classifier>
+        label_encoder: !ref <label_encoder>
+    paths:
+        embedding_model: !ref <pretrained_path>/embedding_model.ckpt
+        classifier: !ref <pretrained_path>/classifier.ckpt
+        label_encoder: !ref <pretrained_path>/label_encoder.txt
